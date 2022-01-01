@@ -7,6 +7,7 @@ def backwardPass(su,duration,lftn):
     lst[activities-1] = lftn
     lft[activities-1] = lftn
 
+
     for i in range(activities-2, -1, -1):
         j = su[i][0]-1
 
