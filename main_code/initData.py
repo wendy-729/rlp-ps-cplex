@@ -87,4 +87,4 @@ def initData(file):
         projPred.append(temp)
     projPred.insert(0, [])
 
-    return res, duration, projSuccessor, projPred, resource, activities,provide_res
+    return res, duration, projSuccessor, projPred, resource, activities,provide_res, nrpr, nrsu
