@@ -26,15 +26,15 @@ for actNumber in act:
     # 第几组数据
     for group in range(1, 2):
         # 第几个实例
-        for project in range(480,481):
+        for project in range(3,4):
 
             # 写入实验结果的文件路径
-            filename=r'E:\zlw\大修实验\实验结果\RCPSP-PS\J'+str(actNumber)+'\\'+str(group)+'\\'+'sch_rcpsp_ps.csv'
+            filename=r'C:\Users\ASUS\Desktop\Model_RCPSP_PS\J'+str(actNumber)+'\\'+'sch_rcpsp_ps.csv'
 
             with open(filename, 'a', newline='') as f:
 
-                file = r'E:\zlw\实验数据集\PSPLIB\j' + str(actNumber) + '\\J' + str(
-                        actNumber) + '_' + str(project) + '.RCP'
+                file = r'D:\研究生资料\RLP-PS汇总\实验数据集\PSPLIB\j' + str(actNumber) + '\\J' + str(
+                    actNumber) + '_' + str(project) + '.RCP'
                 # 初始化数据
                 res, duration, su, pred, req, activities, provide_res = initData(file)
                 # print(activities)
@@ -53,7 +53,7 @@ for actNumber in act:
                     temp1 = [j - 1 for j in temp]
                     proSu.append(temp1)
                 # print('紧后活动集合', proSu)
-                datafile = r'E:\zlw\实验数据集\J'
+                datafile = r'D:\研究生资料\RLP-PS汇总\实验数据集\J'
                 # datafile = r'D:\研究生资料\RLP-PS汇总\示例'
                 # 必须执行的活动
                 # fp_mandatory=datafile+'\\mandatory\\'+ str(project) + '.txt'
@@ -85,7 +85,7 @@ for actNumber in act:
                 # print('依赖活动', depend)
 
                 # 成本
-                fp_cost =  r'E:\zlw\实验数据集\cost.txt'
+                fp_cost = r'D:\研究生资料\RLP-PS汇总\实验数据集\cost.txt'
                 Costs = initCost(fp_cost)
                 cost = Costs[project - 1]
 
@@ -205,13 +205,12 @@ for actNumber in act:
 
                 # 获取目标函数值
                 d1 = md1.objective_value
-                # print(d1)
+                print(d1)
                 # 解的状态
                 a = solution.solve_status
 
                 # 计算时间
                 cputime = solution.solve_details.time
-                cputime = ('%.6f' % cputime)
                 # 将实验结果写入文件
                 results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value)+'\t'
                 # print(results)
@@ -265,7 +264,7 @@ for actNumber in act:
                 csv_writer = csv.writer(f)
                 csv_writer.writerow(csv_results)
                 # print(results)
-                # print(csv_results)
+                print(csv_results)
                 print(project, 'is solved')
                 del x_it, results, mandatory, choiceList, choice, depend, solution, cputime
 
