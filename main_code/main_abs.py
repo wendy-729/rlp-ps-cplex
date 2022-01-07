@@ -1,8 +1,10 @@
 # 郑淋文
 # 时间: 2021/12/23 15:02
 '''
+求解RLP-PS CPLEX代码
 改了计算活动最晚开始时间的方法
 目标函数是相邻时间段的绝对值
+线性化的方法是引入两个辅助变量
 '''
 import numpy as np
 
@@ -37,7 +39,7 @@ for actNumber in act:
             for dtime in dtimes:
                 begin_time = time()
                 # 写入实验结果的文件路径
-                filename = r'C:\Users\ASUS\Desktop\cplex_feasible'+'\\J' + str(actNumber)+'delete_precedence_lower_'+str(dtime)+'_'+'.txt'
+                filename = r'C:\Users\ASUS\Desktop\rlp-ps-cplex-abs'+'\\J' + str(actNumber)+'abs_objective_'+str(dtime)+'_'+'.txt'
                 # 大修路径
                 # filename = r'D:\研究生资料\RLP-PS汇总\第五次投稿-Annals of Operations Research\ANOR大修\CPLEX\J'+ str(actNumber) +'\\' + 'sch_rlp_vl_' + str(actNumber + 2) + '_dtime_' + str(dtime) + '.txt'
 
@@ -121,12 +123,12 @@ for actNumber in act:
 
                     # 最晚开始时间  考虑了所有活动
                     lst_1, lft_1 = backwardPass(su, duration, lftn)
-                    # est_s = [0]*activities
-                    # lst_s = [lftn - duration[i] for i in range(activities)]
+                    est_s = [0]*activities
+                    lst_s = [lftn - duration[i] for i in range(activities)]
 
-                    est_s, eft_s = forwardManda(duration, proSu, mandatory, activities, projPred)
-                    # 所有活动都执行
-                    lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
+                    # est_s, eft_s = forwardManda(duration, proSu, mandatory, activities, projPred)
+                    # # 所有活动都执行
+                    # lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
 
                     # 计算资源占用量  所有活动都执行
                     u_kt = np.zeros((res, lftn), dtype=int)
@@ -272,7 +274,7 @@ for actNumber in act:
                     # results = results + '\n'
                     #
                     # print(results)
-                    # f.write(results)
+                    f.write(results)
                     # print(project, 'is solved')
                     # del x_it, y_kth, results, mandatory, choiceList, choice, depend, solution, cputime
 

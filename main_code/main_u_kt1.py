@@ -25,21 +25,21 @@ from main_code.initfile import initfile
 from main_code.newProjectData import newProjectData
 from main_code.newProjectData1 import newProjectData1
 
-dtimes = [1.2]
+dtimes = [1]
 noact = [38, 45, 51, 61, 93, 104, 112, 132, 157]
 # J60 1.0
 # actset = [7,11,16,30,92,100,113,130,131,135,174,185,197,247]
 # J120 1.0
-actset = [13,17,18,72,97,161,223,285,411,412,422,433,434,440,443,482,500]
+actset = [38] # 1.2-137未求出可行解
 # 活动数量
-act = [60]
+act = [120]
 M = 1e10
 for actNumber in act:
     # 第几组数据
-    for group in range(1, 2):
+    for group in range(4, 5):
         # 第几个实例
-        # for project in actset:
-        for project in range(16, 17):
+        for project in actset:
+        # for project in range(16, 17):
             # print(project)
             if (actNumber == 30 and project in noact and group == 15) or (
                     actNumber == 30 and project in noact and group == 16):
@@ -50,8 +50,8 @@ for actNumber in act:
                 # filename = r'C:\Users\ASUS\Desktop\SRLP实验结果\CPLEX\J30' + '\\' +str(group)+'\\'+ 'sch_rlp_vl' + str(
                 #     actNumber + 2) + '_dtime_' + str(
                 #     dtime) + '.txt'
-                filename = r'D:\研究生资料\RLP-PS汇总\第五次投稿-Annals of Operations Research\ANOR大修\未线性化模型重新计算\J' + str(
-                    actNumber) + '\\' + 'sch_rlp_u_kt1_' + str(actNumber + 2) + '_dtime_' + str(dtime) + '.txt'
+                filename = r'C:\Users\ASUS\Desktop\未线性化的模型重新计算' + '\\J' + str(actNumber) + r'\sch_rlp_' + str(
+                    actNumber + 2) + '_dtime_' + str(dtime) + '_' + '.txt'
 
                 with open(filename, 'a', newline='') as f:
                     file = r'D:\研究生资料\RLP-PS汇总\实验数据集\PSPLIB\j' + str(actNumber) + '\\J' + str(
@@ -223,10 +223,10 @@ for actNumber in act:
                                                    list(range(max(est_s[i], t - duration[i] + 1),
                                                               min(t, lst_s[i])+ 1 ))
                                                ))
-                    # # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
-                    # for i in range(activities-1):
-                    #     md1.add_constraint(md1.sum((t+duration[i]) * x_it[i,t] \
-                    #                        for t in list(range(est_s[i],lst_s[i]+1))) <= lftn )
+                    # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
+                    for i in range(activities-1):
+                        md1.add_constraint(md1.sum((t+duration[i]) * x_it[i,t] \
+                                           for t in list(range(est_s[i],lst_s[i]+1))) <= lftn )
 
                     # 时间参数设定
                     md1.parameters.timelimit = 600
@@ -236,49 +236,51 @@ for actNumber in act:
                     md1.parameters.threads = 1
 
                     solution = md1.solve()
-                    # print(solution)
-                    # 获取目标函数值
-                    d1 = md1.objective_value
-                    # print(d1)
-                    # 解的状态
-                    a = solution.solve_status
-                    # print(solution.solve_status)
-                    # 计算时间
-                    cputime = solution.solve_details.time
-                    # 将实验结果写入文件
-                    results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value)+'\t'
-                    print(results)
-                    #
+                    if solution == None:
+                        continue
+                    else:
+                        # print(solution)
+                        # 获取目标函数值
+                        d1 = md1.objective_value
+                        # print(d1)
+                        # 解的状态
+                        a = solution.solve_status
+                        # print(solution.solve_status)
+                        # 计算时间
+                        cputime = solution.solve_details.time
+                        # 将实验结果写入文件
+                        results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value) + '\t'
+                        print(results)
+                        #
 
+                        # # 获取执行活动以及对应的开始时间
+                        # x_it_value = solution.get_value_dict(x_it)
+                        # act_time = []
+                        # for key, value in x_it_value.items():
+                        #     if value == 1:
+                        #         act_time.append(key)
+                        #
+                        # vl = []
+                        # schedule = [0 for x in range(0, actNumber + 2)]
+                        # for i in range(len(act_time)):
+                        #     vl.append(act_time[i][0])
+                        #     schedule[act_time[i][0]] = act_time[i][1]
+                        # vl = [x + 1 for x in vl]
+                        # # print(lftn)
+                        # print(vl)
+                        # print(schedule)
+                        # print(len(schedule))
+                        # 分成两个文件写入
+                        # 进度计划
 
-                    # 获取执行活动以及对应的开始时间
-                    x_it_value = solution.get_value_dict(x_it)
-                    act_time = []
-                    for key, value in x_it_value.items():
-                        if value == 1:
-                            act_time.append(key)
+                        # for e in range(len(schedule)):
+                        #     results = results + str(schedule[e]) + '\t'
+                        # for e in range(len(vl)):
+                        #     results = results + str(vl[e]) + '\t'
+                        # results = results + '\n'
 
-                    vl = []
-                    schedule = [0 for x in range(0, actNumber + 2)]
-                    for i in range(len(act_time)):
-                        vl.append(act_time[i][0])
-                        schedule[act_time[i][0]] = act_time[i][1]
-                    vl = [x + 1 for x in vl]
-                    # print(lftn)
-                    # print(vl)
-                    # print(schedule)
-                    # print(len(schedule))
-                    # 分成两个文件写入
-                    # 进度计划
-
-                    for e in range(len(schedule)):
-                        results = results + str(schedule[e]) + '\t'
-                    for e in range(len(vl)):
-                        results = results + str(vl[e]) + '\t'
-                    results = results + '\n'
-
-                    # print(results)
-                    # f.write(results)
-                    print(project, 'is solved')
+                        # print(results)
+                        f.write(results)
+                        print(project, 'is solved')
                     del x_it, z_kt, results, mandatory, choiceList, choice, depend, solution, cputime
 

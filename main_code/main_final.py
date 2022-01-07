@@ -21,8 +21,9 @@ from main_code.initfile import initfile
 from main_code.newProjectData import newProjectData
 from main_code.newProjectData1 import newProjectData1
 
-dtimes = [1.0]
+dtimes = [1]
 noact = [38, 45, 51, 61, 93, 104, 112, 132, 157]
+actset = [33,41,393]
 # 活动数量
 act = [60]
 M = 1e10
@@ -30,11 +31,12 @@ for actNumber in act:
     # 第几组数据
     for group in range(1, 2):
         # 第几个实例
-        for project in range(7, 8):
+        for project in actset:
+        # for project in range(1, 2):
             for dtime in dtimes:
                 begin_time = time()
                 # 写入实验结果的文件路径
-                filename = r'C:\Users\ASUS\Desktop\cplex_feasible'+'\\J' + str(actNumber)+'delete_precedence_lower_'+str(dtime)+'_'+'.txt'
+                filename = r'C:\Users\ASUS\Desktop\未线性化的模型重新计算'+'\\J' + str(actNumber) + r'\sch_rlp_'+ str(actNumber + 2) + '_dtime_'+str(dtime)+'_'+'.txt'
                 # 大修路径
                 # filename = r'D:\研究生资料\RLP-PS汇总\第五次投稿-Annals of Operations Research\ANOR大修\CPLEX\J'+ str(actNumber) +'\\' + 'sch_rlp_vl_' + str(actNumber + 2) + '_dtime_' + str(dtime) + '.txt'
 
@@ -151,8 +153,11 @@ for actNumber in act:
                     act = [i for i in range(0, activities)]
                     it = [(i, j) for i in act for j in d]
                     ik = [(i, j) for i in act for j in k]
+                    # dd = [i for i in range(0, sum(duration)+1)]
+                    # itt = [(i, j) for i in act for j in dd]
 
                     x_it = md1.binary_var_dict(it, name='x')
+                    # x_it = md1.binary_var_dict(itt, name='x')
                     y_kth = md1.binary_var_cube(k, d, h, name='y')
 
                     # 目标函数
@@ -203,6 +208,13 @@ for actNumber in act:
                                                    list(range(max(est_s[i], t - duration[i] + 1),
                                                               min(t, lst_s[i])+1)))
                                                )
+                    # print(lftn)
+                    # EJOR计算资源占用量，有问题，
+                    # for kk in k:
+                    #     for t in d:
+                    #         # print(t)
+                    #         md1.add_constraint(md1.sum(req[i][kk]*md1.sum(x_it[i,tt] for tt in list(range(t, t+duration[i])))
+                    #                                    for i in list(range(1, activities)))==md1.sum(y_kth[kk, t, h] for h in list(range(1, max_H + 1))))
 
 
                     # 时间参数设定
@@ -210,7 +222,7 @@ for actNumber in act:
                     # cplex在长时间得到更好的可行解时，求解可行解优先而非最优性优先
                     # md1.parameters.emphasis.mip = 2
                     # md1.parameters.mip.display = 2
-                    # md1.parameters.threads = 1
+                    md1.parameters.threads = 1
 
                     solution = md1.solve()
 
@@ -225,9 +237,9 @@ for actNumber in act:
                     print(results)
 
 
-                    # # 获取执行活动以及对应的开始时间
+                    # # # 获取执行活动以及对应的开始时间
                     # x_it_value = solution.get_value_dict(x_it)
-                    #
+                    # #
                     # act_time = []
                     # for key, value in x_it_value.items():
                     #     if value == 1:
@@ -240,8 +252,8 @@ for actNumber in act:
                     #     vl.append(act_time[i][0])
                     #     schedule[act_time[i][0]] = act_time[i][1]
                     # vl = [x + 1 for x in vl]
-                    # # print(vl)
-                    # # print(schedule)
+                    # print(vl)
+                    # print(schedule)
                     # # print(len(vl))
                     # # print(len(schedule))
                     # # 分成两个文件写入
@@ -256,7 +268,7 @@ for actNumber in act:
                     # results = results + '\n'
                     #
                     # print(results)
-                    # f.write(results)
-                    # print(project, 'is solved')
-                    # del x_it, y_kth, results, mandatory, choiceList, choice, depend, solution, cputime
+                    f.write(results)
+                    print(project, 'is solved')
+                    del x_it, y_kth, results, mandatory, choiceList, choice, depend, solution, cputime
 
