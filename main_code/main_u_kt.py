@@ -23,7 +23,7 @@ from main_code.initfile import initfile
 from main_code.newProjectData import newProjectData
 from main_code.newProjectData1 import newProjectData1
 
-dtimes = [1.0]
+dtimes = [1.2]
 noact = [38, 45, 51, 61, 93, 104, 112, 132, 157]
 # actset = [34,60,61,113,177,393]
 # actset = [13,17,18,72,97,161,223,285,411,412,422,433,434,440,443,482,500]
@@ -241,7 +241,7 @@ for actNumber in act:
                     # 将实验结果写入文件
                     results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value)+'\n'
                     print(results)
-                    f.write(results)
+                    # f.write(results)
 
 
 

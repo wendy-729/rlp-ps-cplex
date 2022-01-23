@@ -25,21 +25,21 @@ from main_code.initfile import initfile
 from main_code.newProjectData import newProjectData
 from main_code.newProjectData1 import newProjectData1
 
-dtimes = [1]
+dtimes = [1.2]
 noact = [38, 45, 51, 61, 93, 104, 112, 132, 157]
 # J60 1.0
 # actset = [7,11,16,30,92,100,113,130,131,135,174,185,197,247]
 # J120 1.0
-actset = [38] # 1.2-137未求出可行解
+actset = [38,433,444] # 1.2-137未求出可行解
 # 活动数量
-act = [120]
+act = [30]
 M = 1e10
 for actNumber in act:
     # 第几组数据
-    for group in range(4, 5):
+    for group in range(1, 2):
         # 第几个实例
-        for project in actset:
-        # for project in range(16, 17):
+        # for project in actset:
+        for project in range(1, 101):
             # print(project)
             if (actNumber == 30 and project in noact and group == 15) or (
                     actNumber == 30 and project in noact and group == 16):
@@ -50,7 +50,7 @@ for actNumber in act:
                 # filename = r'C:\Users\ASUS\Desktop\SRLP实验结果\CPLEX\J30' + '\\' +str(group)+'\\'+ 'sch_rlp_vl' + str(
                 #     actNumber + 2) + '_dtime_' + str(
                 #     dtime) + '.txt'
-                filename = r'C:\Users\ASUS\Desktop\未线性化的模型重新计算' + '\\J' + str(actNumber) + r'\sch_rlp_' + str(
+                filename = r'C:\Users\ASUS\Desktop\未线性化模型自己计算' + '\\J'+str(actNumber)  + r'\sch_rlp_' + str(
                     actNumber + 2) + '_dtime_' + str(dtime) + '_' + '.txt'
 
                 with open(filename, 'a', newline='') as f:
@@ -141,9 +141,9 @@ for actNumber in act:
                     # # 所有活动都执行
                     # lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
                     est_s = [0]*activities
-                    lst_s = [lftn - duration[i] for i in range(activities)]
-                    lst_s[0] = 0
-                    # lst_s = [lftn]*activities
+                    # lst_s = [lftn - duration[i] for i in range(activities)]
+                    # lst_s[0] = 0
+                    lst_s = [lftn]*activities
 
                     # 计算资源占用量  所有活动都执行
                     u_kt = np.zeros((res, lftn), dtype=int)
@@ -221,7 +221,7 @@ for actNumber in act:
                                                    req[i][kk] * x_it[i, tt] for i in list(range(1, activities)) for tt
                                                    in
                                                    list(range(max(est_s[i], t - duration[i] + 1),
-                                                              min(t, lst_s[i])+ 1 ))
+                                                              min(t, lst_s[i]) + 1 ))
                                                ))
                     # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
                     for i in range(activities-1):
@@ -249,7 +249,7 @@ for actNumber in act:
                         # 计算时间
                         cputime = solution.solve_details.time
                         # 将实验结果写入文件
-                        results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value) + '\t'
+                        results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value) + '\n'
                         print(results)
                         #
 
