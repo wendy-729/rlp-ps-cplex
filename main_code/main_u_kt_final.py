@@ -1,3 +1,11 @@
+# 郑淋文
+# 时间: 2022/1/23 21:04
+# 郑淋文
+# 时间: 2021/12/27 13:16
+'''
+原来mian_u_kt有问题暂时没找到原因
+'''
+
 
 import numpy as np
 
@@ -28,7 +36,8 @@ for actNumber in act:
     # 第几组数据
     for group in range(1, 2):
         # 第几个实例
-        for project in range(1, 12):
+        # for project in actset:
+        for project in range(1, 101):
             # print(project)
             if (actNumber == 30 and project in noact and group == 15) or (
                     actNumber == 30 and project in noact and group == 16):
@@ -39,14 +48,14 @@ for actNumber in act:
                 # filename = r'C:\Users\ASUS\Desktop\SRLP实验结果\CPLEX\J30' + '\\' +str(group)+'\\'+ 'sch_rlp_vl' + str(
                 #     actNumber + 2) + '_dtime_' + str(
                 #     dtime) + '.txt'
-                filename = r'C:\Users\ASUS\Desktop\未线性化模型自己计算' + '\\J'+str(actNumber) +'\\'+ 'sch_rlp_' + str(actNumber + 2) + '_dtime_' + str(
-                    dtime) + '.txt'
+                filename = r'C:\Users\ASUS\Desktop\未线性化模型自己计算' + '\\J'+str(actNumber)  + r'\sch_rlp_' + str(
+                    actNumber + 2) + '_dtime_' + str(dtime) + '_' + '.txt'
 
                 with open(filename, 'a', newline='') as f:
                     file = r'D:\研究生资料\RLP-PS汇总\实验数据集\PSPLIB\j' + str(actNumber) + '\\J' + str(
                         actNumber) + '_' + str(project) + '.RCP'
                     # 初始化数据
-                    res, duration, su, pred, req, activities, provide_res,nrpr, nrsu = initData(file)
+                    res, duration, su, pred, req, activities, provide_res,nrpr,nrsu = initData(file)
 
                     # 处理紧前活动，从0开始编号
                     projPred = []
@@ -118,7 +127,7 @@ for actNumber in act:
                         b.append(temp)
                     # print("依赖活动", b)
                     # 考虑更新网络结构中的优先关系
-                    proSu, projPred = newProjectData1(proSu, projPred, choiceList, activities, mandatory)
+                    # proSu, projPred = newProjectData1(proSu, projPred, choiceList, activities, mandatory)
 
                     # 考虑了所有活动的最早开始
                     est_1, eft_1 = forwardPass(duration, su)
@@ -126,15 +135,13 @@ for actNumber in act:
 
                     # # 最晚开始时间  考虑了所有活动
                     lst_1, lft_1 = backwardPass(su, duration, lftn)
-                    # data = {"est": est_1, "lst": lst_1}
-                    # est_lst = DataFrame(data)
-                    # est_s = 0
-                    # lst_s = lftn
-                    est_s, eft_s = forwardManda(duration, proSu, mandatory, activities, projPred)
-                    # 所有活动都执行
-                    lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
-                    # est_s= [0]*activities
-                    # lst_s = [lftn]*activities
+                    # est_s, eft_s = forwardManda(duration, proSu, mandatory, activities, projPred)
+                    # # 所有活动都执行
+                    # lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
+                    est_s = [0]*activities
+                    # lst_s = [lftn - duration[i] for i in range(activities)]
+                    # lst_s[0] = 0
+                    lst_s = [lftn]*activities
 
                     # 计算资源占用量  所有活动都执行
                     u_kt = np.zeros((res, lftn), dtype=int)
@@ -153,33 +160,27 @@ for actNumber in act:
 
                     # 创建模型
                     md1 = Model()
-                    # 线程
-                    md1.parameters.threads = 2
-
                     # 资源种类
                     k = [i for i in range(0, res)]
                     # t = [i for i in range(0, lftn + 1)]
                     h = [i for i in range(1, max_H + 1)]
                     d = [i for i in range(0, lftn + 1)]
-                    y_kth = md1.binary_var_cube(k, d, h, name='y')
-                    # print(y_kth)
+
                     act = [i for i in range(0, activities)]
                     it = [(i, j) for i in act for j in d]
                     ik = [(i, j) for i in act for j in k]
                     kt = [(i, j) for i in k for j in d]
 
                     x_it = md1.binary_var_dict(it, name='x')
+                    # 资源占用量
                     z_kt = md1.integer_var_dict(kt, name='z')
 
-                    # r_ik = md1.binary_var_dict(ik, name='r')
                     # 目标函数
-                    md1.minimize(md1.sum(
-                        cost[k] * (2 * (h) - 1) * y_kth[k, t, h] for h in list(range(1, max_H + 1)) for k in
-                        list(range(0, res))
-                        for t in d))
-                    # md1.minimize(md1.sum(cost[kk] * z_kt[kk, tt] for tt in range(lftn + 1) for kk in k))
-                    # print('目标函数', goal)
+                    md1.minimize(md1.sum(cost[kk] * z_kt[kk, t]*z_kt[kk, t] for kk in k for t in d))
+
+                    # 虚开始活动
                     md1.add_constraint(x_it[0, 0] == 1)
+
                     # 必须执行的活动
                     md1.add_constraints(
                         md1.sum(x_it[i, t] for t in list(range(est_s[i], lst_s[i] + 1))) == 1 for i in
@@ -192,13 +193,14 @@ for actNumber in act:
                                     list(range(est_s[i], lst_s[i] + 1))) ==
                             md1.sum(x_it[ii, tt] for tt in list(range(est_s[ii], lst_s[ii] + 1))))
 
-                        # print('触发可选活动集合', ad)
+
                     # 依赖活动
                     for a in be:
                         for i in b[be.index(a)]:
                             md1.add_constraint(
                                 md1.sum(x_it[i, t] for t in list(range(est_s[i], lst_s[i] + 1))) == \
                                 md1.sum(x_it[a, tt] for tt in list(range(est_s[a], lst_s[a] + 1))))
+
                     # 优先关系
                     for j in list(range(1, activities)):
                         for i in projPred[j]:
@@ -209,26 +211,17 @@ for actNumber in act:
                                     tt * x_it[j, tt] for tt in list(range(est_s[j], lst_s[j] + 1))) + \
                                 M * (1 - md1.sum(
                                     x_it[j, tt] for tt in list(range(est_s[j], lst_s[j] + 1)))))
-                            # print('优先规则', pr)
+
                     # 资源占用量
                     for kk in k:
                         for t in d:
-                            md1.add_constraint(
-                                 z_kt[kk, t] == md1.sum(
-                                    req[i][kk] * x_it[i, tt] for i in list(range(1, activities)) for
-                                    tt in list(
-                                        range(max(est_s[i], t - duration[i] + 1), min(t, lst_s[i]) + 1))))
-
-                    for kk in k:
-                        for t in d:
-                            md1.add_constraint(md1.sum(y_kth[kk, t, h] for h in list(range(1, max_H + 1))) >=
+                            md1.add_constraint(z_kt[kk,t] >=
                                                md1.sum(
                                                    req[i][kk] * x_it[i, tt] for i in list(range(1, activities)) for tt
                                                    in
                                                    list(range(max(est_s[i], t - duration[i] + 1),
                                                               min(t, lst_s[i])+ 1 ))
                                                ))
-
                     # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
                     for i in range(activities-1):
                         md1.add_constraint(md1.sum((t+duration[i]) * x_it[i,t] \
@@ -242,7 +235,7 @@ for actNumber in act:
                     md1.parameters.threads = 1
 
                     solution = md1.solve()
-                    if solution is None:
+                    if solution == None:
                         continue
                     else:
                         # print(solution)
@@ -255,38 +248,38 @@ for actNumber in act:
                         # 计算时间
                         cputime = solution.solve_details.time
                         # 将实验结果写入文件
-                        results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value)+'\t'
+                        results = str(project) + '\t' + str(d1) + '\t' + str(cputime) + '\t' + str(a.value) + '\t'
                         print(results)
                         #
 
-
-                        # 获取执行活动以及对应的开始时间
-                        x_it_value = solution.get_value_dict(x_it)
-                        act_time = []
-                        for key, value in x_it_value.items():
-                            if value == 1:
-                                act_time.append(key)
-
-                        vl = []
-                        schedule = [0 for x in range(0, actNumber + 2)]
-                        for i in range(len(act_time)):
-                            vl.append(act_time[i][0])
-                            schedule[act_time[i][0]] = act_time[i][1]
-                        vl = [x + 1 for x in vl]
+                        # # 获取执行活动以及对应的开始时间
+                        # x_it_value = solution.get_value_dict(x_it)
+                        # act_time = []
+                        # for key, value in x_it_value.items():
+                        #     if value == 1:
+                        #         act_time.append(key)
+                        #
+                        # vl = []
+                        # schedule = [0 for x in range(0, actNumber + 2)]
+                        # for i in range(len(act_time)):
+                        #     vl.append(act_time[i][0])
+                        #     schedule[act_time[i][0]] = act_time[i][1]
+                        # vl = [x + 1 for x in vl]
+                        # # print(lftn)
                         # print(vl)
                         # print(schedule)
                         # print(len(schedule))
                         # 分成两个文件写入
                         # 进度计划
 
-                        for e in range(len(schedule)):
-                            results = results + str(schedule[e]) + '\t'
-                        for e in range(len(vl)):
-                            results = results + str(vl[e]) + '\t'
-                        results = results + '\n'
+                        # for e in range(len(schedule)):
+                        #     results = results + str(schedule[e]) + '\t'
+                        # for e in range(len(vl)):
+                        #     results = results + str(vl[e]) + '\t'
+                        # results = results + '\n'
 
                         # print(results)
                         # f.write(results)
                         print(project, 'is solved')
-                        del x_it, y_kth, results, mandatory, choiceList, choice, depend, solution, cputime
+                    del x_it, z_kt, results, mandatory, choiceList, choice, depend, solution, cputime
 
