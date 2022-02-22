@@ -27,10 +27,10 @@ from main_code.initfile import initfile
 from main_code.newProjectData import newProjectData
 from main_code.newProjectData1 import newProjectData1
 
-dtimes = [1.2]
+dtimes = [1.0]
 noact = [38, 45, 51, 61, 93, 104, 112, 132, 157]
 # 活动数量
-act = [30]
+act = [60]
 M = 1e10
 for actNumber in act:
     # 第几组数据
@@ -139,9 +139,9 @@ for actNumber in act:
                     # # 所有活动都执行
                     # lst_s, lft_s = backward_update(proSu, duration, lftn, activities, mandatory)
                     est_s = [0]*activities
-                    # lst_s = [lftn - duration[i] for i in range(activities)]
+                    lst_s = [lftn - duration[i] for i in range(activities)]
                     # lst_s[0] = 0
-                    lst_s = [lftn]*activities
+                    # lst_s = [lftn]*activities
 
                     # 计算资源占用量  所有活动都执行
                     u_kt = np.zeros((res, lftn), dtype=int)
@@ -222,10 +222,10 @@ for actNumber in act:
                                                    list(range(max(est_s[i], t - duration[i] + 1),
                                                               min(t, lst_s[i])+ 1 ))
                                                ))
-                    # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
-                    for i in range(activities-1):
-                        md1.add_constraint(md1.sum((t+duration[i]) * x_it[i,t] \
-                                           for t in list(range(est_s[i],lst_s[i]+1))) <= lftn )
+                    # # 所有活动的开始时间约束（避免一个活动的所有紧后活动都不执行，其开始时间等于截止日期
+                    # for i in range(activities-1):
+                    #     md1.add_constraint(md1.sum((t+duration[i]) * x_it[i,t] \
+                    #                        for t in list(range(est_s[i],lst_s[i]+1))) <= lftn )
 
                     # 时间参数设定
                     md1.parameters.timelimit = 600
